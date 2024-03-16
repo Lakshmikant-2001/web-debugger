@@ -81,7 +81,7 @@ const CodeEditor = (props) => {
   ];
 
   useEffect(() => {
-    console.log(editorRef.current, "editorRef.current?.view");
+    // console.log(editorRef.current, "editorRef.current?.view");
   }, [editorRef.current]);
 
   return (
@@ -94,7 +94,7 @@ const CodeEditor = (props) => {
       extensions={[...breakpointGutter, basicSetup(), pythonLanguage]}
       onChange={onChange}
       onStatistics={(data) => {
-        console.log("namme", data);
+        // console.log("namme", data);
       }}
     />
   );

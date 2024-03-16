@@ -6,22 +6,24 @@ import Console from "./components/Console";
 import io from "socket.io-client";
 
 const App = () => {
-  const [code, setCode] = useState(
-    `import web_pdb\nweb_pdb.set_trace()\nprint("hi")\na = 1\nprint(a)`
-  );
+  const socket = io("ws://localhost:5000");
+  const [code, setCode] = useState(`print("hello")`);
 
   const [breakpoints, setBreakpoints] = useState<number[]>([]);
 
   const handleContinue = () => {
-    // socketState.emit("command", "continue()");
+    console.log("command continue.....");
+    socket.emit("command", "continue()");
   };
 
   const handleNext = () => {
-    // socketState.emit("next", {});
+    console.log("command next.....");
+    socket.emit("command", "next()");
   };
 
   const handleDebugger = () => {
-    // socketState.emit("debug", {});
+    console.log("code postingg.....", code);
+    socket.emit("code", code);
   };
 
   const onBreakpointChange = (breakpoint, hasBreakpoint) => {
@@ -32,25 +34,18 @@ const App = () => {
   };
 
   useEffect(() => {
-    const socketInstance = io("ws://127.0.0.1:5000/");
-    console.log("connection", socketInstance.connect());
-    // setSocket(socketInstance);
-
-    // listen for events emitted by the server
-
-    socketInstance.on("connection-success", () => {
-      console.log("Connected to server");
+    socket.on("connect", () => {
+      console.log("connected....");
     });
-
-    socketInstance.on("message", (data) => {
-      console.log(`Received message: ${data}`);
+    socket.on("connection-success", () => {
+      console.log("connection success emitted from server");
     });
-    console.log("connection", socketInstance);
-    return () => {
-      if (socketInstance) {
-        socketInstance.disconnect();
-      }
-    };
+    socket.on("code_execution", (data) => {
+      console.log("code executed", data);
+    });
+    socket.on("command_execution", (data) => {
+      console.log("command executed", data);
+    });
   }, []);
 
   return (
@@ -73,19 +68,14 @@ const App = () => {
       <div className="h-1/2">
         <div className="flex items-center gap-4 py-3">
           {breakpoints.map((item) => item)}
-          {/* <label className="block mb-2 font-medium text-gray-900 dark:text-white">
-            Breakpoint :
-          </label>
-          <input
-            type="number"
-            id="breakpoint"
-            className="bg-gray-50 border border-gray-300 rounded-sm"
-            value={breakpoints}
-            required
-            onChange={(event) => {
-              setBreakpoints(Number(event.target.value));
-            }}
-          /> */}
+
+          <button
+            type="button"
+            className="text-white bg-red-700 font-medium rounded-lg text-sm px-3 py-2 me-2 mb-2"
+            onClick={handleDebugger}
+          >
+            Debugger
+          </button>
           <button
             type="button"
             className="text-white bg-blue-700 font-medium rounded-lg text-sm px-3 py-2 me-2 mb-2"
@@ -99,13 +89,6 @@ const App = () => {
             onClick={handleNext}
           >
             Next
-          </button>
-          <button
-            type="button"
-            className="text-white bg-red-700 font-medium rounded-lg text-sm px-3 py-2 me-2 mb-2"
-            onClick={handleDebugger}
-          >
-            Debugger
           </button>
         </div>
         <div className="w-100 mt-3 relative overflow-hidden bg-gray-900 shadow-1xl text-white p-2 rounded-lg">
