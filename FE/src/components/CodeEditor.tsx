@@ -30,33 +30,32 @@ const breakpointState = StateField.define<RangeSet<GutterMarker>>({
   },
 });
 
-function toggleBreakpoint(view: EditorView, pos: number) {
-  let breakpoints = view.state.field(breakpointState);
-  let hasBreakpoint = false;
-  breakpoints.between(pos, pos, () => {
-    hasBreakpoint = true;
-  });
-
-  view.dispatch({
-    effects: breakpointEffect.of({ pos, on: !hasBreakpoint }),
-  });
-  console.log(view);
-}
-
 const breakpointMarker = new (class extends GutterMarker {
   toDOM() {
     return document.createTextNode("●");
   }
 })();
 
-
 const CodeEditor = (props) => {
   const editorRef = useRef<ReactCodeMirrorRef | null>(null);
-  const { code, setCode } = props;
+  const { code, setCode, onBreakpointChange } = props;
   const onChange = React.useCallback((value, viewUpdate) => {
-    console.log("value:", value, viewUpdate);
     setCode(value);
   }, []);
+
+  function toggleBreakpoint(view: EditorView, pos: number) {
+    let breakpoints = view.state.field(breakpointState);
+    let hasBreakpoint = false;
+    breakpoints.between(pos, pos, () => {
+      hasBreakpoint = true;
+    });
+
+    view.dispatch({
+      effects: breakpointEffect.of({ pos, on: !hasBreakpoint }),
+    });
+    let breakpoint: number = view.state.doc.lineAt(pos)?.number;
+    breakpoint && onBreakpointChange(breakpoint, hasBreakpoint);
+  }
 
   const breakpointGutter = [
     breakpointState,
@@ -67,12 +66,9 @@ const CodeEditor = (props) => {
       initialSpacer: () => breakpointMarker,
       domEventHandlers: {
         mousedown(view, line) {
-          console.log("line", line);
-          debugger;
-          console.log(editorRef.current, "editorRef.current?.view")
           toggleBreakpoint(view, line.from);
           return true;
-        }
+        },
       },
     }),
     EditorView.baseTheme({
@@ -85,8 +81,8 @@ const CodeEditor = (props) => {
   ];
 
   useEffect(() => {
-    console.log(editorRef.current, "editorRef.current?.view")
-  }, [editorRef.current])
+    console.log(editorRef.current, "editorRef.current?.view");
+  }, [editorRef.current]);
 
   return (
     <ReactCodeMirror
