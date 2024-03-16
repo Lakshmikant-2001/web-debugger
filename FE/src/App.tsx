@@ -12,14 +12,17 @@ const App = () => {
   const [breakpoints, setBreakpoints] = useState<number[]>([]);
 
   const handleContinue = () => {
+    console.log("command continue.....");
     socket.emit("command", "continue()");
   };
 
   const handleNext = () => {
+    console.log("command next.....");
     socket.emit("command", "next()");
   };
 
   const handleDebugger = () => {
+    console.log("code postingg.....", code);
     socket.emit("code", code);
   };
 

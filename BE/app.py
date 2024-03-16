@@ -18,14 +18,10 @@ socket = SocketIO(app, cors_allowed_origins="*")
 # For localhost testing.
 CORS(app)
 
-code = """
+DEBUGGER_DEFAULT_BREAKPOINT = """
 import pdb
 pdb.set_trace()
-print("eleiiii")
-print("hlo")
-print("good")
 """
-
 
 class HandleProcess():
     def __init__(self):
@@ -70,8 +66,9 @@ def connection():
 @socket.on('code')
 def send_code(data):
     try:
-        with open("main.py", "w") as mainf:
-            mainf.write(code)
+        with open("main.py", "w+") as mainf:
+            mainf.write(DEBUGGER_DEFAULT_BREAKPOINT)
+            mainf.write(data)
         handler.start_process()
         emit('code_execution',
          {'data': 'Code exectuion started'})
