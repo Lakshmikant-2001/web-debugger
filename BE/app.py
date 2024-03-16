@@ -1,5 +1,6 @@
 import os
 import subprocess
+import threading
 from flask import Flask
 
 from flask_cors import CORS, cross_origin
@@ -33,7 +34,7 @@ class HandleProcess():
     def start_process(self):
         self.process = subprocess.Popen(['python3', 'main.py'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
-    def send_input(self, command):
+    def write_input(self, command):
         try:
             if self.process:
               self.process.stdin.write(command + '\n')
@@ -45,7 +46,11 @@ class HandleProcess():
     def read_input(self):
         try:
             if self.process:
-                return self.process.stdout.readline()
+                message = self.process.stdout.readline()
+                if '--Return--' in message:
+                    self.process.kill()
+                    return '__return__'
+                return message
             return ''
         except Exception as e:
             print(e,'error read input')
@@ -78,7 +83,11 @@ def send_code(data):
 def send_command(command):
     try:
         print('received input')
-        handler.send_input(command)
+
+        # handler.write_input(command)
+        
+        writer = threading.Thread(target=handler.write_input, args=(command,))
+        writer.start()
         message = handler.read_input()
         print('send message')
         emit('code_execution',
