@@ -3,7 +3,7 @@ import CodeEditor from "./components/CodeEditor";
 import LocalVariable from "./components/LocalVariable";
 import GlobalVariable from "./components/GlobalVariable";
 import Console from "./components/Console";
-import io from "socket.io-client";
+import { socket } from "./socket";
 
 const App = () => {
   const [code, setCode] = useState(
@@ -32,25 +32,12 @@ const App = () => {
   };
 
   useEffect(() => {
-    const socketInstance = io("ws://127.0.0.1:5000/");
-    console.log("connection", socketInstance.connect());
-    // setSocket(socketInstance);
-
-    // listen for events emitted by the server
-
-    socketInstance.on("connection-success", () => {
-      console.log("Connected to server");
-    });
-
-    socketInstance.on("message", (data) => {
-      console.log(`Received message: ${data}`);
-    });
-    console.log("connection", socketInstance);
-    return () => {
-      if (socketInstance) {
-        socketInstance.disconnect();
-      }
-    };
+    socket.on("connect", () => {
+      console.log("connected....")
+    })
+    socket.on("connect_error", (err) => {
+      console.log("connection failed....", err)
+    })
   }, []);
 
   return (
