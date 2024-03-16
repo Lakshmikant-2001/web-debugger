@@ -13,7 +13,7 @@ app = Flask(__name__)
 # Socket io setup.
 app.config['SECRET_KEY'] = 'secret!'
 # |cors_allowed_origins| is required for localhost testing.
-socket = SocketIO(app, cors_allowed_origins="*")
+socket = SocketIO(app, cors_allowed_origins="http://44.218.118.253:1234")
 
 # For localhost testing.
 CORS(app)
