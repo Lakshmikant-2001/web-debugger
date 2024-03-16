@@ -79,17 +79,16 @@ def send_code(data):
 @socket.on('command')
 def send_command(command):
     try:
-        print('received input')
+        print('-------received input------\t', command)
 
         # handler.write_input(command)
         
         writer = threading.Thread(target=handler.write_input, args=(command,))
         writer.start()
         message = handler.read_input()
-        print('send message')
-        emit('command_execution',
-         {'data': message})
-        print(handler.process, 'Process runiing')
+        print('-------send message response-------\t', message)
+        emit('command_execution', message)
+        # print(handler.process, 'Process runiing')
 
     except Exception as e:
         print(e,'error ')

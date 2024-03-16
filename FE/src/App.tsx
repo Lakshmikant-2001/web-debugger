@@ -4,12 +4,13 @@ import LocalVariable from "./components/LocalVariable";
 import GlobalVariable from "./components/GlobalVariable";
 import Console from "./components/Console";
 import io from "socket.io-client";
+const socket = io("ws://localhost:5000");
 
 const App = () => {
-  const socket = io("ws://localhost:5000");
-  const [code, setCode] = useState(`print("hello")`);
-
+  const [code, setCode] = useState(`print("Hello world")`);
   const [breakpoints, setBreakpoints] = useState<number[]>([]);
+  const [consoleData, setConsoleData] = useState("");
+  const [isDebugMode, setDebugMode] = useState(false);
 
   const handleContinue = () => {
     console.log("command continue.....");
@@ -22,6 +23,7 @@ const App = () => {
   };
 
   const handleDebugger = () => {
+    setDebugMode(true);
     console.log("code postingg.....", code);
     socket.emit("code", code);
   };
@@ -32,6 +34,12 @@ const App = () => {
       : breakpoints?.filter((v) => v != breakpoint);
     list && setBreakpoints(list);
   };
+
+  useEffect(() => {
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   useEffect(() => {
     socket.on("connect", () => {
@@ -45,12 +53,17 @@ const App = () => {
     });
     socket.on("command_execution", (data) => {
       console.log("command executed", data);
+      if (data !== "__return__") setConsoleData(data);
+      else {
+        setDebugMode(false);
+        setConsoleData("");
+      }
     });
-  }, []);
+  }, [socket]);
 
   return (
     <div className="bg-white p-7 h-screen">
-      <div className="flex flex-1 gap-4 h-1/2">
+      <div className="flex flex-1 gap-4 h-2/3">
         <div className="w-2/3 relative overflow-hidden bg-gray-900 shadow-1xl text-white p-2 rounded-lg">
           <CodeEditor
             code={code}
@@ -66,33 +79,33 @@ const App = () => {
         </div>
       </div>
       <div className="h-1/2">
-        <div className="flex items-center gap-4 py-3">
-          {breakpoints.map((item) => item)}
-
+        <div className="flex items-center py-3">
           <button
             type="button"
             className="text-white bg-red-700 font-medium rounded-lg text-sm px-3 py-2 me-2 mb-2"
             onClick={handleDebugger}
           >
-            Debugger
-          </button>
-          <button
-            type="button"
-            className="text-white bg-blue-700 font-medium rounded-lg text-sm px-3 py-2 me-2 mb-2"
-            onClick={handleContinue}
-          >
-            Continue
+            Debug
           </button>
           <button
             type="button"
             className="text-white bg-gray-700 font-medium rounded-lg text-sm px-3 py-2 me-2 mb-2"
             onClick={handleNext}
+            disabled={!isDebugMode}
           >
             Next
           </button>
+          <button
+            type="button"
+            className="text-white bg-blue-700 font-medium rounded-lg text-sm px-3 py-2 me-2 mb-2"
+            onClick={handleContinue}
+            disabled={!isDebugMode}
+          >
+            Continue
+          </button>
         </div>
-        <div className="w-100 mt-3 relative overflow-hidden bg-gray-900 shadow-1xl text-white p-2 rounded-lg">
-          <Console />
+        <div className="w-100 mt-3 relative overflow-hidden bg-gray-900 shadow-1xl text-white p-2 rounded-lg  h-1/4">
+          <Console data={consoleData} />
         </div>
       </div>
     </div>
