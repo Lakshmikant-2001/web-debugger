@@ -90,7 +90,7 @@ def send_command(command):
         writer.start()
         message = handler.read_input()
         print('send message')
-        emit('code_execution',
+        emit('command_execution',
          {'data': message})
         print(handler.process, 'Process runiing')
 
