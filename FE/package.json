@@ -25,6 +25,7 @@
     "@uiw/react-codemirror": "^4.21.24",
     "codemirror": "^5.65.16",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "socket.io-client": "^4.7.5"
   }
 }
