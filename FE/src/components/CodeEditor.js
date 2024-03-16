@@ -1,8 +1,8 @@
-import WrapperCodeMirror from "./ReactCodeMirror";
+import ReactCodeMirror from "./ReactCodeMirror";
 
 const CodeEditor = () => {
   return (
-    <WrapperCodeMirror />
+    <ReactCodeMirror />
   );
 };
 
