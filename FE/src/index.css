@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-.cm-mygutter{
+.breakpoint {
   width: 20px;
   color: #f8f8f2;
 }
